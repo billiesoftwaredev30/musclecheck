@@ -1,0 +1,177 @@
+/* components/DailySalesReportModal.module.css */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+
+.modal {
+  width: 100%;
+  max-width: 400px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  animation: modalIn 0.3s var(--ease-out-expo) both;
+  overflow: hidden;
+  margin: auto;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.closeButton:hover {
+  color: var(--error);
+}
+
+.receiptContainer {
+  padding: 24px;
+  background: white; /* Needs to be white for a receipt */
+  color: black;      /* Black text on receipt */
+  font-family: monospace, "Courier New", Courier;
+  border-radius: 4px;
+  margin: 20px;
+}
+
+.receiptHeader {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  border-bottom: 1px dashed #ccc;
+  padding-bottom: 10px;
+}
+
+.receiptRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.receiptRow span:first-child {
+  width: 150px;
+}
+
+.receiptRow span:nth-child(2) {
+  margin-right: auto;
+  margin-left: 10px;
+}
+
+.receiptRow span:last-child {
+  font-weight: bold;
+}
+
+.divider {
+  border-bottom: 1px dashed #ccc;
+  margin: 12px 0;
+}
+
+.indented {
+  padding-left: 20px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.printButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.printButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+/* Print CSS */
+@media print {
+  /* Reset the overlay so it takes up the full page for printing */
+  .overlay {
+    position: absolute !important;
+    background: white !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
+  }
+  
+  .modal {
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  .header, .actions, .closeButton {
+    display: none !important;
+  }
+  
+  .receiptContainer {
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+}

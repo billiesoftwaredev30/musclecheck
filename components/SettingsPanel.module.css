@@ -1,0 +1,237 @@
+/* components/SettingsPanel.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+  animation: fadeInUp 0.5s var(--ease-out-expo) both;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.headerIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-fuchsia);
+}
+
+.headerTitle {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--foreground);
+}
+
+.headerDesc {
+  color: var(--foreground-muted);
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+/* ──────── Section Groups ──────── */
+.section {
+  background: rgba(0, 0, 0, 0.015);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  border-left: 3px solid var(--accent-purple);
+  transition: var(--transition-fast);
+}
+
+[data-theme="dark"] .section {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.section:hover {
+  border-left-color: var(--accent-fuchsia);
+}
+
+.sectionTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--foreground);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sectionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.sectionGridThree {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+/* ──────── Fields ──────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--foreground-secondary);
+}
+
+.inputGroup {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: var(--transition-fast);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.inputGroup:focus-within {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1);
+}
+
+.inputPrefix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--foreground-muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-right: 1px solid var(--glass-border);
+  user-select: none;
+}
+
+[data-theme="dark"] .inputPrefix {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.input {
+  flex: 1;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: var(--foreground);
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  outline: none;
+  min-width: 0;
+}
+
+/* ──────── Save Button ──────── */
+.saveRow {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  margin-top: 10px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.saveBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.88rem;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+}
+
+.saveBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.3);
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ──────── Category Nav ──────── */
+.categoryNav {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--glass-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.categoryNav::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryBtn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--foreground-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.categoryBtn:hover {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--foreground);
+}
+
+[data-theme="dark"] .categoryBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.categoryBtnActive {
+  background: var(--glass-bg);
+  color: var(--accent-fuchsia);
+  border-color: var(--accent-fuchsia);
+  box-shadow: 0 0 10px rgba(244, 114, 182, 0.1);
+}
+
+[data-theme="dark"] .categoryBtnActive {
+  background: rgba(244, 114, 182, 0.08);
+}
+
+.sectionsContainer {
+  min-height: 250px;
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-out both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

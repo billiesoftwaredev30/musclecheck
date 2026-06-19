@@ -1,0 +1,86 @@
+/* components/GlassCard.module.css */
+.card {
+  background: var(--gradient-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(var(--glass-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--glass-backdrop-blur));
+  color: var(--foreground);
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(245, 158, 11, 0.2) 30%, rgba(234, 179, 8, 0.15) 70%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out-expo);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: 24px;
+  }
+}
+
+.roundedLarge {
+  border-radius: var(--radius-xl);
+  padding: 28px;
+}
+
+@media (min-width: 640px) {
+  .roundedLarge {
+    padding: 32px;
+  }
+}
+
+.hoverable {
+  cursor: pointer;
+}
+
+.hoverable:hover {
+  border-color: var(--glass-border-hover);
+  background: var(--glass-bg-hover);
+  box-shadow: var(--glass-shadow-hover),
+              0 0 0 1px rgba(245, 158, 11, 0.06);
+  transform: translateY(-4px);
+}
+
+.hoverable:active {
+  transform: translateY(-1px);
+}
+
+/* AI variant with purple accent */
+.aiCard {
+  background: linear-gradient(145deg, rgba(14, 14, 24, 0.9) 0%, rgba(30, 18, 50, 0.7) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+.aiCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #7c3aed, #a855f7, #7c3aed);
+  opacity: 0.8;
+}
+
+.aiCard:hover {
+  border-color: rgba(168, 85, 247, 0.35);
+  box-shadow: var(--glass-shadow),
+              0 0 40px rgba(124, 58, 237, 0.08);
+}

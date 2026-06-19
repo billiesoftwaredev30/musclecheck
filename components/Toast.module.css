@@ -1,0 +1,133 @@
+/* components/Toast.module.css */
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--glass-backdrop-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  animation: slideInRight 0.4s var(--ease-out-expo) both;
+  position: relative;
+  overflow: hidden;
+  min-width: 280px;
+}
+
+[data-theme="dark"] .toast {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.toast.exiting {
+  animation: slideOutRight 0.3s var(--ease-out-expo) both;
+}
+
+.iconWrapper {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iconSuccess {
+  composes: iconWrapper;
+  background: var(--success-bg);
+  color: var(--success-light);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.iconError {
+  composes: iconWrapper;
+  background: var(--error-bg);
+  color: var(--error-light);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.iconWarning {
+  composes: iconWrapper;
+  background: var(--warning-bg);
+  color: var(--warning-light);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.iconInfo {
+  composes: iconWrapper;
+  background: rgba(59, 130, 246, 0.08);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--foreground);
+  line-height: 1.3;
+}
+
+.message {
+  font-size: 0.8rem;
+  color: var(--foreground-muted);
+  line-height: 1.4;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--foreground-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--foreground);
+}
+
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  animation: shrinkWidth linear both;
+}
+
+.progressSuccess {
+  composes: progressBar;
+  background: var(--success);
+}
+
+.progressError {
+  composes: progressBar;
+  background: var(--error);
+}
+
+.progressWarning {
+  composes: progressBar;
+  background: var(--warning);
+}
+
+.progressInfo {
+  composes: progressBar;
+  background: #3b82f6;
+}
