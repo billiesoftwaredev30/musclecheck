@@ -10,11 +10,11 @@ from backend.core.config import settings
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
-@router.get("/", response_model=List[ClientResponse])
+@router.get("", response_model=List[ClientResponse])
 def get_clients(db: Session = Depends(get_db)):
     return db.query(Client).order_by(Client.full_name).all()
 
-@router.post("/", response_model=ClientResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ClientResponse, status_code=status.HTTP_201_CREATED)
 def create_client(client: ClientCreate, db: Session = Depends(get_db)):
     db_client = db.query(Client).filter(Client.full_name == client.full_name).first()
     if db_client:

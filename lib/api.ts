@@ -122,7 +122,7 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetrics> {
 }
 
 export async function fetchClients(): Promise<ClientResponse[]> {
-  const response = await fetch(`${API_BASE_URL}/clients/`, {
+  const response = await fetch(`${API_BASE_URL}/clients`, {
     cache: "no-store",
   });
   if (!response.ok) {
@@ -132,7 +132,7 @@ export async function fetchClients(): Promise<ClientResponse[]> {
 }
 
 export async function createClient(client: ClientCreate): Promise<ClientResponse> {
-  const response = await fetch(`${API_BASE_URL}/clients/`, {
+  const response = await fetch(`${API_BASE_URL}/clients`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -178,7 +178,7 @@ export async function addSubscription(
 }
 
 export async function logSession(session: DailySessionCreate): Promise<DailySessionResponse> {
-  const response = await fetch(`${API_BASE_URL}/sessions/`, {
+  const response = await fetch(`${API_BASE_URL}/sessions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -193,7 +193,7 @@ export async function logSession(session: DailySessionCreate): Promise<DailySess
 }
 
 export async function fetchRates(): Promise<GymRatesResponse> {
-  const response = await fetch(`${API_BASE_URL}/rates/`, {
+  const response = await fetch(`${API_BASE_URL}/rates`, {
     cache: "no-store",
   });
   if (!response.ok) {
@@ -203,7 +203,7 @@ export async function fetchRates(): Promise<GymRatesResponse> {
 }
 
 export async function updateRates(rates: GymRatesUpdate): Promise<GymRatesResponse> {
-  const response = await fetch(`${API_BASE_URL}/rates/`, {
+  const response = await fetch(`${API_BASE_URL}/rates`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(rates),

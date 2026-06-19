@@ -12,7 +12,7 @@ router = APIRouter(prefix="/sessions", tags=["sessions"])
 def get_summary(db: Session = Depends(get_db)):
     return get_dashboard_metrics(db)
 
-@router.post("/", response_model=DailySessionResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=DailySessionResponse, status_code=status.HTTP_201_CREATED)
 def log_session(session: DailySessionCreate, db: Session = Depends(get_db)):
     # Check if client_id is provided and valid to link the visit
     db_client = None

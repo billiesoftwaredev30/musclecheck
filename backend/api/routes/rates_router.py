@@ -16,12 +16,12 @@ def get_or_create_settings(db: Session) -> SystemSettings:
         db.refresh(settings)
     return settings
 
-@router.get("/", response_model=GymRatesResponse)
+@router.get("", response_model=GymRatesResponse)
 def get_gym_rates(db: Session = Depends(get_db)):
     settings = get_or_create_settings(db)
     return settings
 
-@router.put("/", response_model=GymRatesResponse)
+@router.put("", response_model=GymRatesResponse)
 def update_gym_rates(req: GymRatesUpdate, db: Session = Depends(get_db)):
     settings = get_or_create_settings(db)
     settings.rate_daily_member = req.rate_daily_member
