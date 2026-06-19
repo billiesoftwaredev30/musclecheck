@@ -4,8 +4,8 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import styles from "./SessionLogger.module.css";
-import { ClientResponse, GymRatesResponse, logSession, DailySessionCreate } from "@/lib/api";
-import { ClipboardCheck, Plus, Check, Camera } from "lucide-react";
+import { ClientResponse, GymRatesResponse, DailySessionResponse, logSession, DailySessionCreate } from "@/lib/api";
+import { ClipboardCheck, Plus, Check, Camera, AlertCircle } from "lucide-react";
 import GlassCard from "./GlassCard";
 import modalStyles from "./ConfirmModal.module.css";
 import dynamic from "next/dynamic";
@@ -14,12 +14,14 @@ const FaceCapture = dynamic(() => import("./FaceCapture"), { ssr: false });
 interface SessionLoggerProps {
   clients: ClientResponse[];
   rates: GymRatesResponse | null;
+  dailySessions: DailySessionResponse[];
   onSessionLogged: () => void;
   startWithCamera?: boolean;
   onCameraToggle?: (active: boolean) => void;
+  onCancel?: () => void;
 }
 
-export default function SessionLogger({ clients, rates, onSessionLogged, startWithCamera = false, onCameraToggle }: SessionLoggerProps) {
+export default function SessionLogger({ clients, rates, dailySessions, onSessionLogged, startWithCamera = false, onCameraToggle, onCancel }: SessionLoggerProps) {
   const [selectedClientId, setSelectedClientId] = useState<string>("walk-in");
   const [clientName, setClientName] = useState("");
   const [timeIn, setTimeIn] = useState("");
@@ -33,6 +35,9 @@ export default function SessionLogger({ clients, rates, onSessionLogged, startWi
   const [showCamera, setShowCamera] = useState(false);
   const [scannedClient, setScannedClient] = useState<ClientResponse | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showAlreadyCheckedIn, setShowAlreadyCheckedIn] = useState(false);
+  const [alreadyCheckedInClient, setAlreadyCheckedInClient] = useState<ClientResponse | null>(null);
+  const [alreadyCheckedInSession, setAlreadyCheckedInSession] = useState<DailySessionResponse | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,9 +45,9 @@ export default function SessionLogger({ clients, rates, onSessionLogged, startWi
   // Propagate camera status to parent modals
   useEffect(() => {
     if (onCameraToggle) {
-      onCameraToggle(showCamera || showSuccessModal);
+      onCameraToggle(showCamera || showSuccessModal || showAlreadyCheckedIn);
     }
-  }, [showCamera, showSuccessModal, onCameraToggle]);
+  }, [showCamera, showSuccessModal, showAlreadyCheckedIn, onCameraToggle]);
 
   // Auto-start camera if startWithCamera prop is true
   useEffect(() => {
@@ -89,6 +94,28 @@ export default function SessionLogger({ clients, rates, onSessionLogged, startWi
       }
     }
   }, [selectedClientId, clients, rates]);
+
+  // Check for duplicate check-in helper
+  const checkDuplicateSession = (clientId: number): DailySessionResponse | undefined => {
+    return dailySessions.find(s => s.client_id === clientId);
+  };
+
+  // Handle client selection with duplicate check
+  const handleClientSelect = (value: string) => {
+    if (value !== "walk-in") {
+      const existingSession = checkDuplicateSession(Number(value));
+      if (existingSession) {
+        const client = clients.find(c => c.id === Number(value));
+        if (client) {
+          setAlreadyCheckedInClient(client);
+          setAlreadyCheckedInSession(existingSession);
+          setShowAlreadyCheckedIn(true);
+          return;
+        }
+      }
+    }
+    setSelectedClientId(value);
+  };
 
   // Handle member checkbox changes for walk-ins
   const handleMemberChange = (checked: boolean) => {
@@ -220,6 +247,15 @@ export default function SessionLogger({ clients, rates, onSessionLogged, startWi
             onMatchFound={(clientId) => {
               const matched = clients.find((c) => c.id === clientId);
               if (matched) {
+                // Check for duplicate before showing success
+                const existingSession = checkDuplicateSession(clientId);
+                if (existingSession) {
+                  setAlreadyCheckedInClient(matched);
+                  setAlreadyCheckedInSession(existingSession);
+                  setShowAlreadyCheckedIn(true);
+                  setShowCamera(false);
+                  return;
+                }
                 setScannedClient(matched);
                 setShowSuccessModal(true);
               }
@@ -317,9 +353,10 @@ export default function SessionLogger({ clients, rates, onSessionLogged, startWi
             </button>
             <button
               type="button"
+              disabled={loading}
               onClick={async () => {
-                setShowSuccessModal(false);
                 await handleLogSessionForClient(scannedClient);
+                setShowSuccessModal(false);
               }}
               style={{ 
                 flex: 1, 
@@ -328,13 +365,14 @@ export default function SessionLogger({ clients, rates, onSessionLogged, startWi
                 border: "none", 
                 borderRadius: "14px", 
                 color: "white", 
-                cursor: "pointer", 
+                cursor: loading ? "not-allowed" : "pointer", 
                 fontSize: "0.85rem", 
                 fontWeight: 700,
-                boxShadow: "0 4px 15px rgba(124, 58, 237, 0.3)"
+                boxShadow: "0 4px 15px rgba(124, 58, 237, 0.3)",
+                opacity: loading ? 0.7 : 1
               }}
             >
-              Confirm & Log
+              {loading ? "Logging..." : "Confirm & Log"}
             </button>
           </div>
         </GlassCard>
@@ -347,6 +385,104 @@ export default function SessionLogger({ clients, rates, onSessionLogged, startWi
     <form className={styles.form} onSubmit={handleSubmit}>
       {cameraPortal}
       {successModal}
+
+      {/* Already Checked In Today Modal */}
+      {showAlreadyCheckedIn && alreadyCheckedInClient && alreadyCheckedInSession && createPortal(
+        <div
+          className={modalStyles.overlay}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowAlreadyCheckedIn(false);
+              setAlreadyCheckedInClient(null);
+              setAlreadyCheckedInSession(null);
+            }
+          }}
+        >
+          <div style={{ width: "100%", maxWidth: "440px", margin: "auto", animation: "modalIn 0.35s var(--ease-out-expo) both" }}>
+            <GlassCard style={{ position: "relative", padding: "24px", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "24px" }}>
+              {/* Warning Header */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", textAlign: "center", marginBottom: "20px" }}>
+                <div style={{
+                  width: "60px",
+                  height: "60px",
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #f59e0b, #f97316)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 0 20px rgba(245, 158, 11, 0.4)",
+                  animation: "pulse 2s infinite"
+                }}>
+                  <AlertCircle size={28} style={{ color: "white" }} />
+                </div>
+                <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 800, background: "linear-gradient(to right, #f59e0b, #f97316)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                  Already Checked In Today
+                </h3>
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--foreground-muted)" }}>
+                  This client already has a session logged for today
+                </p>
+              </div>
+
+              {/* Client Info */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--glass-border)", padding: "16px", borderRadius: "16px", marginBottom: "20px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px" }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--foreground-secondary)" }}>Name</span>
+                  <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--foreground)" }}>{alreadyCheckedInClient.full_name}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px" }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--foreground-secondary)" }}>Checked In At</span>
+                  <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--foreground)" }}>{alreadyCheckedInSession.time_in}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px" }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--foreground-secondary)" }}>Amount Paid</span>
+                  <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--success-light)" }}>₱{alreadyCheckedInSession.amount_paid.toLocaleString()}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--foreground-secondary)" }}>Payment</span>
+                  <span style={{
+                    fontSize: "0.8rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    padding: "2px 8px",
+                    borderRadius: "12px",
+                    background: alreadyCheckedInSession.payment_method === "gcash" ? "rgba(234, 179, 8, 0.15)" : "rgba(255,255,255,0.08)",
+                    color: alreadyCheckedInSession.payment_method === "gcash" ? "#fbbf24" : "var(--foreground)"
+                  }}>{alreadyCheckedInSession.payment_method.toUpperCase()}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAlreadyCheckedIn(false);
+                    setAlreadyCheckedInClient(null);
+                    setAlreadyCheckedInSession(null);
+                    if (onCancel) onCancel();
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: "12px",
+                    background: "linear-gradient(135deg, #f59e0b, #f97316)",
+                    border: "none",
+                    borderRadius: "14px",
+                    color: "white",
+                    cursor: "pointer",
+                    fontSize: "0.85rem",
+                    fontWeight: 700,
+                    fontFamily: "var(--font-family)",
+                    boxShadow: "0 4px 15px rgba(245, 158, 11, 0.3)"
+                  }}
+                >
+                  OK
+                </button>
+              </div>
+            </GlassCard>
+          </div>
+        </div>,
+        document.body
+      )}
       <div>
         <h3 className={styles.title}>
           <ClipboardCheck size={20} style={{ color: "var(--accent-fuchsia)" }} />
@@ -379,7 +515,7 @@ export default function SessionLogger({ clients, rates, onSessionLogged, startWi
         <select
           className={styles.select}
           value={selectedClientId}
-          onChange={(e) => setSelectedClientId(e.target.value)}
+          onChange={(e) => handleClientSelect(e.target.value)}
         >
           <option value="walk-in">-- Unregistered / Walk-In --</option>
           {clients.map((c) => (
@@ -539,37 +675,10 @@ export default function SessionLogger({ clients, rates, onSessionLogged, startWi
       )}
 
       <div style={{ display: "flex", gap: "10px", width: "100%" }}>
-        <button className={styles.button} type="submit" disabled={loading} style={{ flex: clientsWithFaces.length > 0 ? "2" : "1", margin: 0 }}>
+        <button className={styles.button} type="submit" disabled={loading} style={{ width: "100%", margin: 0 }}>
           <Plus size={18} />
           {loading ? "Logging check-in..." : "Check In Client"}
         </button>
-        
-        {clientsWithFaces.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setShowCamera(true)}
-            style={{
-              flex: "1",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              padding: "12px 16px",
-              background: "linear-gradient(135deg, #7c3aed, #a855f7)",
-              border: "none",
-              borderRadius: "12px",
-              color: "white",
-              cursor: "pointer",
-              fontWeight: 700,
-              fontSize: "0.88rem",
-              boxShadow: "0 4px 15px rgba(124, 58, 237, 0.25)",
-              transition: "transform 0.2s cubic-bezier(0.22, 1, 0.36, 1)"
-            }}
-          >
-            <Camera size={16} />
-            Face Check-In
-          </button>
-        )}
       </div>
     </form>
   );

@@ -20,6 +20,7 @@ import {
   fetchRates,
   DashboardMetrics,
   GymRatesResponse,
+  deleteSession,
 } from "@/lib/api";
 import {
   Activity,
@@ -48,6 +49,7 @@ export default function GymDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingDelete, setLoadingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
 
@@ -129,6 +131,19 @@ export default function GymDashboardPage() {
       loadDashboardData();
     }
   }, [loadDashboardData, isAuthenticated]);
+
+  const handleDeleteSession = async (id: number) => {
+    setLoadingDelete(true);
+    try {
+      await deleteSession(id);
+      toast.success("Session deleted successfully");
+      loadDashboardData();
+    } catch (err: any) {
+      toast.error("Failed to delete session", err.message);
+    } finally {
+      setLoadingDelete(false);
+    }
+  };
 
   // Greeting based on time
   const getGreeting = () => {
@@ -275,20 +290,6 @@ export default function GymDashboardPage() {
       <div className={styles.contentArea} key={activeTab}>
         {activeTab === "checkins" ? (
           <GlassCard>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px", gap: "10px" }}>
-              <button 
-                onClick={() => setProductModalOpen(true)}
-                style={{
-                  display: "flex", alignItems: "center", gap: "6px",
-                  background: "var(--glass-bg)", border: "1px solid var(--accent-fuchsia)",
-                  color: "var(--foreground)", padding: "8px 14px", borderRadius: "var(--radius-sm)",
-                  cursor: "pointer", fontWeight: 600, fontSize: "0.82rem",
-                  fontFamily: "var(--font-family)"
-                }}
-              >
-                Log Product Sale
-              </button>
-            </div>
             <SessionHistory
               sessions={metrics.daily_sessions}
               onLogEntry={() => {
@@ -299,7 +300,14 @@ export default function GymDashboardPage() {
                 setStartWithCamera(true);
                 setLogModalOpen(true);
               }}
+              onLogProductSale={() => setProductModalOpen(true)}
               hasFaces={metrics.clients.some((c) => c.face_descriptor)}
+              onDelete={handleDeleteSession}
+              onBulkDelete={() => {
+                toast.success("Selected sessions deleted");
+                loadDashboardData();
+              }}
+              loadingDelete={loadingDelete}
             />
           </GlassCard>
         ) : activeTab === "history" ? (
@@ -323,6 +331,7 @@ export default function GymDashboardPage() {
         onClose={() => setLogModalOpen(false)}
         clients={metrics.clients}
         rates={rates}
+        dailySessions={metrics.daily_sessions}
         startWithCamera={startWithCamera}
         onSessionLogged={loadDashboardData}
       />

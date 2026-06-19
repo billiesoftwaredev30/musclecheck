@@ -7,18 +7,19 @@ import styles from "./ConfirmModal.module.css";
 import SessionLogger from "./SessionLogger";
 import GlassCard from "./GlassCard";
 import { X } from "lucide-react";
-import { ClientResponse, GymRatesResponse } from "@/lib/api";
+import { ClientResponse, GymRatesResponse, DailySessionResponse } from "@/lib/api";
 
 interface LogSessionModalProps {
   open: boolean;
   onClose: () => void;
   clients: ClientResponse[];
   rates: GymRatesResponse | null;
+  dailySessions: DailySessionResponse[];
   onSessionLogged: () => void;
   startWithCamera?: boolean;
 }
 
-export default function LogSessionModal({ open, onClose, clients, rates, onSessionLogged, startWithCamera = false }: LogSessionModalProps) {
+export default function LogSessionModal({ open, onClose, clients, rates, dailySessions, onSessionLogged, startWithCamera = false }: LogSessionModalProps) {
   const [cameraActive, setCameraActive] = useState(false);
 
   const handleKeyDown = useCallback(
@@ -62,12 +63,14 @@ export default function LogSessionModal({ open, onClose, clients, rates, onSessi
           <SessionLogger
             clients={clients}
             rates={rates}
+            dailySessions={dailySessions}
             startWithCamera={startWithCamera}
             onCameraToggle={(active) => setCameraActive(active)}
             onSessionLogged={() => {
               onSessionLogged();
               onClose();
             }}
+            onCancel={onClose}
           />
         </GlassCard>
       </div>

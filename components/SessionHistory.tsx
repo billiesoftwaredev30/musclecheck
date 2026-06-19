@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import styles from "./SessionHistory.module.css";
 import { DailySessionResponse, bulkDeleteSessions } from "@/lib/api";
-import { ClipboardList, Check, Trash2, Plus, Camera, CalendarOff } from "lucide-react";
+import { ClipboardList, Check, Trash2, Plus, Camera, CalendarOff, ShoppingBag } from "lucide-react";
 import ConfirmModal from "./ConfirmModal";
 
 interface SessionHistoryProps {
@@ -13,11 +13,12 @@ interface SessionHistoryProps {
   onBulkDelete?: () => void;
   onLogEntry?: () => void;
   onFaceCheckIn?: () => void;
+  onLogProductSale?: () => void;
   hasFaces?: boolean;
   loadingDelete?: boolean;
 }
 
-export default function SessionHistory({ sessions, onDelete, onBulkDelete, onLogEntry, onFaceCheckIn, hasFaces = false, loadingDelete }: SessionHistoryProps) {
+export default function SessionHistory({ sessions, onDelete, onBulkDelete, onLogEntry, onFaceCheckIn, onLogProductSale, hasFaces = false, loadingDelete }: SessionHistoryProps) {
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: number }>({ open: false, id: 0 });
   const [bulkDeleteModal, setBulkDeleteModal] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -85,6 +86,11 @@ export default function SessionHistory({ sessions, onDelete, onBulkDelete, onLog
           {selectedIds.length > 0 && onDelete && (
             <button className={styles.btnDanger} onClick={() => setBulkDeleteModal(true)}>
               <Trash2 size={14} /> Delete Selected ({selectedIds.length})
+            </button>
+          )}
+          {onLogProductSale && (
+            <button className={styles.btnProduct} onClick={onLogProductSale}>
+              <ShoppingBag size={14} /> Log Product Sale
             </button>
           )}
           {hasFaces && onFaceCheckIn && (
