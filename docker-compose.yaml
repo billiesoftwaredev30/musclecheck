@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  musclecheck:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: musclecheck-app
+    ports:
+      - "3000:3000"
+      - "8000:8000"
+    restart: unless-stopped
+    volumes:
+      # Mount the SQLite database to persist data across container restarts
+      - ./musclecheck.db:/app/musclecheck.db
