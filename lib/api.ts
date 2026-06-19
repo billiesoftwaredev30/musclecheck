@@ -83,6 +83,7 @@ export interface GymRatesResponse {
   rate_black_coffee: number;
   rate_coffee_creamer: number;
   rate_cucumber_lemonade: number;
+  rate_trainer_commission: number;
 }
 
 export type GymRatesUpdate = Omit<GymRatesResponse, "id">;
