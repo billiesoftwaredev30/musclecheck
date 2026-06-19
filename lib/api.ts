@@ -1,6 +1,9 @@
 // lib/api.ts
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+export const API_BASE_URL =
+  typeof window !== "undefined"
+    ? "/api"
+    : process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 export interface ClientResponse {
   id: number;
