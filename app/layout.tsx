@@ -1,6 +1,5 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
 
@@ -25,10 +24,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Script
-          src="https://code.responsivevoice.org/responsivevoice.js?key=FREE"
-          strategy="beforeInteractive"
-        />
         <ToastProvider>
           {children}
         </ToastProvider>
