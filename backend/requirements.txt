@@ -5,6 +5,6 @@ python-dotenv==1.0.0
 pydantic
 pydantic-settings
 psycopg2-binary
-youtubesearchpython
+youtube-search-python
 gtts
 httpx<0.28
