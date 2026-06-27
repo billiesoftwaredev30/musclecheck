@@ -20,7 +20,7 @@ interface EditClientModalProps {
 
 export default function EditClientModal({ client, onClose, onSuccess, onError, onClientsUpdated }: EditClientModalProps) {
   const [clientName, setClientName] = useState("");
-  const [clientStatus, setClientStatus] = useState<"member" | "non-member" | "subscriber">("member");
+  const [clientStatus, setClientStatus] = useState<"member" | "non-member" | "subscriber" | "coach" | "helper" | "ba">("member");
   const [ptSessionsRemaining, setPtSessionsRemaining] = useState(0);
   const [faceDescriptor, setFaceDescriptor] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
@@ -150,6 +150,9 @@ export default function EditClientModal({ client, onClose, onSuccess, onError, o
                 <option value="member" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>Regular Member</option>
                 <option value="non-member" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>Walk-in (Non-member)</option>
                 <option value="subscriber" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>Subscriber</option>
+                <option value="coach" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>Coach</option>
+                <option value="helper" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>Helper</option>
+                <option value="ba" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>Branch Admin (BA)</option>
               </select>
             </div>
 

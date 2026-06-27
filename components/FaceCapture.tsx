@@ -3,7 +3,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "@vladmandic/face-api";
-import { Camera, RefreshCw, CheckCircle, AlertCircle, X } from "lucide-react";
+import { Camera, RefreshCw, CheckCircle, AlertCircle, X, FlipHorizontal } from "lucide-react";
 
 interface FaceCaptureProps {
   onCapture?: (descriptorStr: string) => void;
@@ -31,6 +31,8 @@ export default function FaceCapture({
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState("Loading neural networks...");
   const [cameraActive, setCameraActive] = useState(false);
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
   const [faceDetected, setFaceDetected] = useState(false);
   const [isScanning, setIsScanning] = useState(true);
   const [scannedDescriptor, setScannedDescriptor] = useState<Float32Array | null>(null);
@@ -83,10 +85,14 @@ export default function FaceCapture({
           streamRef.current.getTracks().forEach((track) => track.stop());
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480, facingMode: "user" },
-          audio: false,
-        });
+        const constraints: MediaStreamConstraints = { audio: false };
+        if (selectedDeviceId) {
+          constraints.video = { deviceId: { exact: selectedDeviceId } };
+        } else {
+          constraints.video = { facingMode: "user" }; 
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
         if (!active) {
           stream.getTracks().forEach((track) => track.stop());
@@ -97,6 +103,13 @@ export default function FaceCapture({
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           setCameraActive(true);
+        }
+
+        // Fetch available devices once we have permission
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const vInputs = devices.filter(d => d.kind === 'videoinput');
+        if (active && vInputs.length > 0) {
+          setVideoDevices(vInputs);
         }
       } catch (err: any) {
         console.error("Error starting camera:", err);
@@ -115,7 +128,7 @@ export default function FaceCapture({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [modelsLoaded]);
+  }, [modelsLoaded, selectedDeviceId]);
 
   // Main facial recognition rendering & matching loop
   useEffect(() => {
@@ -355,14 +368,38 @@ export default function FaceCapture({
           <Camera size={20} style={{ color: "var(--accent-fuchsia)", filter: "drop-shadow(0 0 8px rgba(168, 85, 247, 0.5))" }} />
           {title}
         </h4>
-        <button
-          onClick={onCancel}
-          style={{ background: "none", border: "none", color: "var(--foreground-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "6px", borderRadius: "50%", transition: "background 0.2s" }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
-        >
-          <X size={18} />
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button
+            onClick={() => {
+              if (videoDevices.length < 2) return;
+              const currentTrack = streamRef.current?.getVideoTracks()[0];
+              let currentIndex = -1;
+              if (currentTrack) {
+                currentIndex = videoDevices.findIndex(d => d.label === currentTrack.label);
+              }
+              if (currentIndex === -1 && selectedDeviceId) {
+                currentIndex = videoDevices.findIndex(d => d.deviceId === selectedDeviceId);
+              }
+              const nextIndex = (Math.max(currentIndex, 0) + 1) % videoDevices.length;
+              setSelectedDeviceId(videoDevices[nextIndex].deviceId);
+            }}
+            disabled={videoDevices.length < 2}
+            style={{ background: "none", border: "none", color: "var(--foreground-muted)", cursor: videoDevices.length > 1 ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", padding: "6px", borderRadius: "50%", transition: "background 0.2s", opacity: videoDevices.length > 1 ? 1 : 0.4 }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = videoDevices.length > 1 ? "rgba(255,255,255,0.05)" : "none")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+            title="Switch Camera"
+          >
+            <FlipHorizontal size={18} />
+          </button>
+          <button
+            onClick={onCancel}
+            style={{ background: "none", border: "none", color: "var(--foreground-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "6px", borderRadius: "50%", transition: "background 0.2s" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+          >
+            <X size={18} />
+          </button>
+        </div>
       </div>
 
       {errorMsg && (

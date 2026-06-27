@@ -8,7 +8,7 @@ export const API_BASE_URL =
 export interface ClientResponse {
   id: number;
   full_name: string;
-  status: "member" | "non-member" | "subscriber";
+  status: "member" | "non-member" | "subscriber" | "coach" | "helper" | "ba";
   date_joined: string;
   pt_sessions_remaining: number;
   face_descriptor?: string;
@@ -16,7 +16,7 @@ export interface ClientResponse {
 
 export interface ClientCreate {
   full_name: string;
-  status: "member" | "non-member" | "subscriber";
+  status: "member" | "non-member" | "subscriber" | "coach" | "helper" | "ba";
   pt_sessions_remaining?: number;
   face_descriptor?: string;
 }

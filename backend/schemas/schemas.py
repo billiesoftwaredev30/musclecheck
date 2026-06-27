@@ -9,7 +9,7 @@ class BulkDeleteRequest(BaseModel):
 
 class ClientBase(BaseModel):
     full_name: str = Field(..., min_length=1, max_length=100)
-    status: str = Field("member", pattern="^(member|non-member|subscriber)$")
+    status: str = Field("member", pattern="^(member|non-member|subscriber|coach|helper|ba)$")
     pt_sessions_remaining: int = 0
     face_descriptor: Optional[str] = None
 
@@ -18,7 +18,7 @@ class ClientCreate(ClientBase):
 
 class ClientUpdate(BaseModel):
     full_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    status: Optional[str] = Field(None, pattern="^(member|non-member|subscriber)$")
+    status: Optional[str] = Field(None, pattern="^(member|non-member|subscriber|coach|helper|ba)$")
     pt_sessions_remaining: Optional[int] = None
     face_descriptor: Optional[str] = None
 

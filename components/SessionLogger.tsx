@@ -340,6 +340,30 @@ export default function SessionLogger({ clients, rates, dailySessions, onSession
                 </label>
               </div>
             )}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "12px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--foreground-secondary)" }}>Trainer Assist / Coach</label>
+                <select 
+                  style={{ 
+                    padding: "10px", 
+                    borderRadius: "8px", 
+                    border: "1px solid var(--glass-border)", 
+                    background: "rgba(255,255,255,0.03)", 
+                    color: "var(--foreground)", 
+                    outline: "none", 
+                    width: "100%", 
+                    appearance: "none",
+                    cursor: "pointer"
+                  }}
+                  value={clientAssist}
+                  onChange={(e) => setClientAssist(e.target.value as any)}
+                >
+                  <option value="NONE" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>None</option>
+                  <option value="JAYSON" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>Jayson</option>
+                  <option value="VINCENT" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>Vincent</option>
+                  <option value="TIN" style={{ background: "var(--bg-elevated)", color: "var(--foreground)" }}>Tin</option>
+                </select>
+            </div>
           </div>
 
           {/* Actions */}
