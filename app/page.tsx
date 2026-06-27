@@ -122,7 +122,7 @@ export default function GymDashboardPage() {
       setRates(ratesData);
     } catch (err: any) {
       console.error(err);
-      setError("Unable to connect to the Muscle Check Fitness API. Check if the backend uvicorn server is running on http://127.0.0.1:8000.");
+      setError("Unable to connect to the Muscle Check Fitness API. The backend server may be temporarily offline. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
