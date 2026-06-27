@@ -346,3 +346,59 @@ export async function fetchTrainerPayroll(startDate: string, endDate: string): P
   }
   return response.json();
 }
+
+// --- Music Requests ---
+export interface SongRequestCreate {
+  title: string;
+  requested_by: string;
+}
+
+export interface SongRequestResponse {
+  id: number;
+  title: string;
+  requested_by: string;
+  status: string;
+  created_at: string;
+}
+
+export async function requestSong(song: SongRequestCreate): Promise<SongRequestResponse> {
+  const response = await fetch(`${API_BASE_URL}/music/request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(song),
+  });
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.detail || "Failed to request song");
+  }
+  return response.json();
+}
+
+export async function fetchMusicQueue(): Promise<SongRequestResponse[]> {
+  const response = await fetch(`${API_BASE_URL}/music/queue`, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch music queue: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function updateSongStatus(id: number, status: string): Promise<SongRequestResponse> {
+  const response = await fetch(`${API_BASE_URL}/music/${id}/status`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update song status: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function deleteSongRequest(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/music/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to delete song request: ${response.statusText}`);
+  }
+}

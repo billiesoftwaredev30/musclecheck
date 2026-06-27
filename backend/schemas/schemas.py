@@ -177,3 +177,21 @@ class DashboardMetrics(BaseModel):
     clients: List[ClientResponse]
     product_sales: List[ProductSaleResponse]
     product_revenue: float
+
+# Song Requests
+class SongRequestCreate(BaseModel):
+    title: str
+    requested_by: str
+
+class SongRequestUpdate(BaseModel):
+    status: str = Field(..., pattern="^(queued|playing|played|skipped)$")
+
+class SongRequestResponse(BaseModel):
+    id: int
+    title: str
+    requested_by: str
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

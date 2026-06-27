@@ -13,6 +13,7 @@ import SettingsPanel from "@/components/SettingsPanel";
 import DailySalesReportModal from "@/components/DailySalesReportModal";
 import LogProductModal from "@/components/LogProductModal";
 import TrainerPayrollPanel from "@/components/TrainerPayrollPanel";
+import MusicQueuePanel from "@/components/MusicQueuePanel";
 import GlassCard from "@/components/GlassCard";
 import { useToast } from "@/components/Toast";
 import {
@@ -34,12 +35,13 @@ import {
   Settings,
   Printer,
   Banknote,
+  Music,
 } from "lucide-react";
 
 export default function GymDashboardPage() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [rates, setRates] = useState<GymRatesResponse | null>(null);
-  const [activeTab, setActiveTab] = useState<"checkins" | "clients" | "history" | "payroll" | "settings">("checkins");
+  const [activeTab, setActiveTab] = useState<"checkins" | "clients" | "history" | "payroll" | "settings" | "music">("checkins");
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [logModalOpen, setLogModalOpen] = useState(false);
   const [productModalOpen, setProductModalOpen] = useState(false);
@@ -284,6 +286,13 @@ export default function GymDashboardPage() {
           <Settings size={15} />
           Settings
         </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === "music" ? styles.tabActive : styles.tabInactive}`}
+          onClick={() => handleTabChange("music")}
+        >
+          <Music size={15} />
+          Music Player
+        </button>
       </nav>
 
       {/* ── Content ── */}
@@ -316,6 +325,8 @@ export default function GymDashboardPage() {
           <TrainerPayrollPanel />
         ) : activeTab === "settings" ? (
           <SettingsPanel initialRates={rates} onRatesUpdated={loadDashboardData} />
+        ) : activeTab === "music" ? (
+          <MusicQueuePanel />
         ) : (
           <ClientManager
             clients={metrics.clients}

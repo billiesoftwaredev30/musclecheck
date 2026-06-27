@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.core.config import settings
 from backend.core.database import engine, Base, SessionLocal
-from backend.api.routes import clients_router, sessions_router, rates_router, auth_router, products_router, trainers_router
+from backend.api.routes import clients_router, sessions_router, rates_router, auth_router, products_router, trainers_router, music_router
 from backend.services.gym_service import seed_gym_data
 
 # Create Database tables
@@ -38,6 +38,7 @@ app.include_router(sessions_router.router, prefix=settings.API_V1_STR)
 app.include_router(rates_router.router, prefix=settings.API_V1_STR)
 app.include_router(products_router.router, prefix=settings.API_V1_STR)
 app.include_router(trainers_router.router, prefix=settings.API_V1_STR)
+app.include_router(music_router.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():

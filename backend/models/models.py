@@ -83,3 +83,12 @@ class ProductSale(Base):
     time_sold = Column(String, nullable=False)
     amount_paid = Column(Float, nullable=False)
     payment_method = Column(String, nullable=False)  # cash, gcash
+
+class SongRequest(Base):
+    __tablename__ = "song_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    requested_by = Column(String, nullable=False)
+    status = Column(String, default="queued")  # queued, playing, played, skipped
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
