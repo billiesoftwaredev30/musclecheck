@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://muscle-api.cloudnext.cloud/api/:path*",
+        destination: "http://localhost:8000/api/:path*",
       },
     ];
   },
