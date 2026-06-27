@@ -189,6 +189,7 @@ class SongRequestUpdate(BaseModel):
 class SongRequestResponse(BaseModel):
     id: int
     title: str
+    youtube_url: Optional[str] = None
     requested_by: str
     status: str
     created_at: datetime

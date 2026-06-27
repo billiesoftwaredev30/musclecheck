@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "./MusicQueuePanel.module.css";
 import GlassCard from "./GlassCard";
 import { Music, Play, Trash2, SkipForward } from "lucide-react";
@@ -12,7 +12,42 @@ export default function MusicQueuePanel() {
   const [playingSong, setPlayingSong] = useState<SongRequestResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [djVoiceEnabled, setDjVoiceEnabled] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const toast = useToast();
+
+  const playSongWithAnnouncement = (song: SongRequestResponse) => {
+    const isVoiceEnabled = djVoiceEnabled || localStorage.getItem("djVoiceEnabled") === "true";
+
+    if (isVoiceEnabled) {
+      setIsSpeaking(true);
+      const text = `Up next, a request from ${song.requested_by}: ${song.title}`;
+      const ttsUrl = `${process.env.NEXT_PUBLIC_API_URL}/music/tts?text=${encodeURIComponent(text)}`;
+
+      const audio = new Audio(ttsUrl);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setIsSpeaking(false);
+        setPlayingSong(song);
+      };
+
+      audio.onerror = () => {
+        setIsSpeaking(false);
+        setPlayingSong(song);
+      };
+
+      audio.play().catch(() => {
+        // If browser blocks autoplay, skip to video
+        setIsSpeaking(false);
+        setPlayingSong(song);
+      });
+    } else {
+      setPlayingSong(song);
+    }
+  };
 
   const loadQueue = async () => {
     try {
@@ -36,6 +71,12 @@ export default function MusicQueuePanel() {
 
   useEffect(() => {
     setIsMounted(true);
+    // Restore DJ Voice setting from localStorage
+    const savedDjVoice = localStorage.getItem("djVoiceEnabled");
+    if (savedDjVoice === "true") {
+      setDjVoiceEnabled(true);
+    }
+
     loadQueue();
     const interval = setInterval(loadQueue, 3000); // Poll every 3s for near-instant updates
 
@@ -80,7 +121,7 @@ export default function MusicQueuePanel() {
     if (nextSong) {
       try {
         await updateSongStatus(nextSong.id, "playing");
-        setPlayingSong(nextSong);
+        playSongWithAnnouncement(nextSong);
         setQueue(prev => prev.map(s => s.id === nextSong.id ? { ...s, status: "playing" } : s));
       } catch (err) {
         console.error("Failed to update status", err);
@@ -123,7 +164,7 @@ export default function MusicQueuePanel() {
     }
     try {
       await updateSongStatus(song.id, "playing");
-      setPlayingSong(song);
+      playSongWithAnnouncement(song);
       loadQueue();
     } catch (err) {
       console.error(err);
@@ -135,7 +176,7 @@ export default function MusicQueuePanel() {
     return match ? match[1] : null;
   };
 
-  const videoId = playingSong ? getYouTubeId(playingSong.title) : null;
+  const videoId = playingSong ? getYouTubeId(playingSong.youtube_url || playingSong.title) : null;
 
   return (
     <div className={styles.panel}>
@@ -144,13 +185,29 @@ export default function MusicQueuePanel() {
           <Music size={20} style={{ color: "var(--accent-fuchsia)" }} />
           Gym Music Player
         </h3>
-        <span style={{ fontSize: "0.85rem", color: "var(--foreground-muted)" }}>
-          Share <strong style={{ color: "var(--foreground)" }}>/dj</strong> for clients to request songs
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <label style={{ fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", color: djVoiceEnabled ? "var(--accent-fuchsia)" : "var(--foreground-muted)" }}>
+            <input type="checkbox" checked={djVoiceEnabled} onChange={(e) => {
+              setDjVoiceEnabled(e.target.checked);
+              localStorage.setItem("djVoiceEnabled", e.target.checked ? "true" : "false");
+            }} style={{ cursor: "pointer" }} />
+            DJ Voice Announcements
+          </label>
+          <span style={{ fontSize: "0.85rem", color: "var(--foreground-muted)" }}>
+            Share <strong style={{ color: "var(--foreground)" }}>/dj</strong> for clients to request songs
+          </span>
+        </div>
       </div>
 
       <GlassCard>
-        {isMounted && playingSong && videoId ? (
+        {isSpeaking ? (
+          <div className={styles.playerWrapper} style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "var(--glass-bg)" }}>
+            <div style={{ textAlign: "center", animation: "pulse 1.5s infinite" }}>
+              <Music size={48} style={{ color: "var(--accent-fuchsia)", marginBottom: "12px" }} />
+              <p>DJ is speaking...</p>
+            </div>
+          </div>
+        ) : isMounted && playingSong && videoId ? (
           <div className={styles.playerWrapper}>
             <iframe
               id="youtube-player-iframe"

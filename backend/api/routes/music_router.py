@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
+import io
 
 from backend.core.database import get_db
 from backend.models.models import SongRequest
@@ -12,10 +14,53 @@ router = APIRouter(
     tags=["music"]
 )
 
+from youtubesearchpython import VideosSearch
+from gtts import gTTS
+
+@router.get("/tts")
+def text_to_speech(text: str):
+    """Generate a speech MP3 from the given text using Google TTS."""
+    try:
+        tts = gTTS(text=text, lang="en", slow=False)
+        mp3_fp = io.BytesIO()
+        tts.write_to_fp(mp3_fp)
+        mp3_fp.seek(0)
+        return StreamingResponse(
+            mp3_fp,
+            media_type="audio/mpeg",
+            headers={"Cache-Control": "no-cache"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def is_youtube_url(url: str) -> bool:
+    return "youtube.com" in url or "youtu.be" in url
+
 @router.post("/request", response_model=SongRequestResponse)
 def request_song(song: SongRequestCreate, db: Session = Depends(get_db)):
+    title_to_save = song.title.strip()
+    youtube_url = None
+    
+    if is_youtube_url(title_to_save):
+        youtube_url = title_to_save
+        
+    try:
+        videos_search = VideosSearch(title_to_save, limit=1)
+        result = videos_search.result()
+        if result and result.get("result") and len(result["result"]) > 0:
+            video = result["result"][0]
+            # Always grab the URL if it wasn't provided directly
+            if not youtube_url:
+                youtube_url = video.get("link")
+            # Always grab the beautiful title to display!
+            title_to_save = video.get("title", title_to_save)
+    except Exception as e:
+        pass
+
     db_song = SongRequest(
-        title=song.title,
+        title=title_to_save,
+        youtube_url=youtube_url,
         requested_by=song.requested_by,
         status="queued"
     )

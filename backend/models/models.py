@@ -89,6 +89,7 @@ class SongRequest(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
+    youtube_url = Column(String, nullable=True)
     requested_by = Column(String, nullable=False)
     status = Column(String, default="queued")  # queued, playing, played, skipped
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

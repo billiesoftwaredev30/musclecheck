@@ -356,6 +356,7 @@ export interface SongRequestCreate {
 export interface SongRequestResponse {
   id: number;
   title: string;
+  youtube_url?: string;
   requested_by: string;
   status: string;
   created_at: string;
